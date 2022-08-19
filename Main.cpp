@@ -7,6 +7,7 @@
 #include<glm/glm/gtc/type_ptr.hpp>
 #include"shaderClass.h"
 #include "Rect2D.h"
+#include <glm/glm/gtx/string_cast.hpp>
 
 using namespace std;
 
@@ -90,26 +91,33 @@ int main() {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
-	glm::vec3 position = glm::vec3(0.1f, 0.1f, 0.1f);
-	glm::vec3 scale = glm::vec3(1000.0f, 1000.0f, 1000.0f);
-	glm::mat4 rotation = glm::mat4(0.0f);
-	glm::mat4 translation = glm::translate(glm::mat4(), position);
-	glm::mat4 scaleMat = glm::scale(glm::mat4(), scale);
+	float x = 400.0f;
+	glm::vec3 position = glm::vec3(-x, 400.0f, 0.0f);
+	glm::vec3 scale = glm::vec3(2.0f, 2.0f, 1.0f);
+	glm::mat4 rotation = glm::mat4(1.0f);
+	glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
+	glm::mat4 scaleMat = glm::scale(glm::mat4(1.0), scale);
 	glm::mat4 model = translation * rotation * scaleMat;
+	//glm::mat4 model = glm::mat4(1.0f);
+	//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	//model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f));
 
 	glm::vec3 upDir = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 camPos = glm::vec3(0.0f, 0.0f, -5.0f);
-	glm::vec3 lookDir = glm::normalize(camPos - glm::vec3(0.1f, 0.1f, 0.1f));
+	glm::vec3 camPos = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 lookTarget = glm::vec3(0.0f, 0.0f, -5.0f);
+	glm::vec3 cameraDirection = glm::normalize(camPos - lookTarget);
 
-	glm::mat4 view = glm::lookAt(camPos, camPos + lookDir, upDir);
+	cout << glm::to_string(cameraDirection) << endl;
+
+	glm::mat4 view = glm::lookAt(camPos, cameraDirection, upDir);
 
 	// note that we're translating the scene in the reverse direction of where we want to move
 	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
 	glm::mat4 projection;
 	//projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-	projection = glm::ortho(0.0f, 800.0f, 800.0f, 0.0f, 0.1f, 100.0f);
+	projection = glm::ortho(0.0f, 800.0f, 0.0f, 800.0f, 0.1f, 10.0f);
+
 
 	
 
@@ -118,13 +126,16 @@ int main() {
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and assign the new color to it
 		glClear(GL_COLOR_BUFFER_BIT);
+		x = fmod(x + 1.0f, 800);
+		glm::vec3 position = glm::vec3(-x, 400.0f, 0.0f);
+		glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
+		glm::mat4 model = translation * rotation * scaleMat;
+
+		glm::mat4 mvp = projection * view * model;
+
 		shader.use();
-		int modelLoc = glGetUniformLocation(shader.ID, "model");
-		int viewLoc = glGetUniformLocation(shader.ID, "view");
-		int projectionLoc = glGetUniformLocation(shader.ID, "projection");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		int mvpLoc = glGetUniformLocation(shader.ID, "mvp");
+		
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);

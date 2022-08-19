@@ -10,10 +10,10 @@ public:
 	int ID;
 	Rect2D(int size, glm::vec3 color, glm::vec3 pos);
 	GLfloat vertices[24] = {
-	 0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // top right
-	 0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom right
-	-0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  // bottom left
-	-0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f  // top left 
+	 1.0f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f,  // top right
+	 1.0f, -1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom right
+	-1.0f, -1.0f, 0.0f,  0.0f, 0.0f, 1.0f,  // bottom left
+	-1.0f,  1.0f, 0.0f,  1.0f, 1.0f, 1.0f  // top left 
 	};
 	GLuint indices[6] = {  // note that we start from 0!
 		0, 1, 3,   // first triangle
