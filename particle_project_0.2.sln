@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32811.315
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "particle_project_0.2", "particle_project_0.2.vcxproj", "{B189E928-2828-435F-8EEA-C178943689B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B189E928-2828-435F-8EEA-C178943689B0}.Debug|x64.ActiveCfg = Debug|x64
+		{B189E928-2828-435F-8EEA-C178943689B0}.Debug|x64.Build.0 = Debug|x64
+		{B189E928-2828-435F-8EEA-C178943689B0}.Debug|x86.ActiveCfg = Debug|Win32
+		{B189E928-2828-435F-8EEA-C178943689B0}.Debug|x86.Build.0 = Debug|Win32
+		{B189E928-2828-435F-8EEA-C178943689B0}.Release|x64.ActiveCfg = Release|x64
+		{B189E928-2828-435F-8EEA-C178943689B0}.Release|x64.Build.0 = Release|x64
+		{B189E928-2828-435F-8EEA-C178943689B0}.Release|x86.ActiveCfg = Release|Win32
+		{B189E928-2828-435F-8EEA-C178943689B0}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0CE0270B-4ED0-478C-96CE-D9C93943AFE7}
+	EndGlobalSection
+EndGlobal
