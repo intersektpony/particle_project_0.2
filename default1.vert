@@ -26,5 +26,5 @@ void main()
 {
 	// Outputs the positions/coordinates of all vertices
 	gl_Position = mvp * vec4(aPos, 1.0);
-	vertexColor = vec4(0.5, 0.0, 0.0, 1.0); // set the output variable to a dark-red color
+	vertexColor = vec4(aColor, 1.0); // set the output variable to a dark-red color
 }

@@ -71,11 +71,12 @@ int main() {
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	Rect2D rect = Rect2D(1, glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.3f, 0.3f, 0.3f));
+	Rect2D rect = Rect2D(1, glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(400.0f, 400.0f, 0.0f));
 
-	cout << rect.vertices[0] << endl;
+	cout << "ADSDASDAS   " << sizeof(rect.getVertices()) << endl;
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(rect.vertices), rect.vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(rect.getVertices()), rect.getVertices().data(), GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(rect.vertices), rect.vertices, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -92,8 +93,8 @@ int main() {
 	glEnableVertexAttribArray(1);
 
 	float x = 400.0f;
-	glm::vec3 position = glm::vec3(-x, 400.0f, 0.0f);
-	glm::vec3 scale = glm::vec3(2.0f, 2.0f, 1.0f);
+	glm::vec3 position = rect.getPosition();
+	glm::vec3 scale = glm::vec3(20.0f, 20.0f, 1.0f);
 	glm::mat4 rotation = glm::mat4(1.0f);
 	glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
 	glm::mat4 scaleMat = glm::scale(glm::mat4(1.0), scale);
@@ -111,9 +112,6 @@ int main() {
 
 	glm::mat4 view = glm::lookAt(camPos, cameraDirection, upDir);
 
-	// note that we're translating the scene in the reverse direction of where we want to move
-	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
 	glm::mat4 projection;
 	//projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 	projection = glm::ortho(0.0f, 800.0f, 0.0f, 800.0f, 0.1f, 10.0f);
@@ -127,15 +125,23 @@ int main() {
 		// Clean the back buffer and assign the new color to it
 		glClear(GL_COLOR_BUFFER_BIT);
 		x = fmod(x + 1.0f, 800);
-		glm::vec3 position = glm::vec3(-x, 400.0f, 0.0f);
+		glm::vec3 position = rect.getPosition();
+		//glm::vec3 position = glm::vec3(-400.0f, 400.0f, 0.0f);
 		glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
 		glm::mat4 model = translation * rotation * scaleMat;
 
 		glm::mat4 mvp = projection * view * model;
+		//glm::mat4 mvp = projection * model;
 
 		shader.use();
+		int modelLoc = glGetUniformLocation(shader.ID, "model");
+		int viewLoc = glGetUniformLocation(shader.ID, "view");
+		int projectionLoc = glGetUniformLocation(shader.ID, "projection");
 		int mvpLoc = glGetUniformLocation(shader.ID, "mvp");
-		
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
