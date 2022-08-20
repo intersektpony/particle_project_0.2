@@ -1,3 +1,4 @@
+#define GLFW_INCLUDE_NONE
 #include<iostream>
 #include<glad/gl.h>
 #include<GLFW/glfw3.h>
@@ -6,13 +7,14 @@
 #include<glm/glm/gtc/matrix_transform.hpp>
 #include<glm/glm/gtc/type_ptr.hpp>
 #include"shaderClass.h"
-#include "Rect2D.h"
-#include <glm/glm/gtx/string_cast.hpp>
+#include"Rect2D.h"
+#include<glm/glm/gtx/string_cast.hpp>
+#include"GOLCell.h"
 
 using namespace std;
 
-int width = 800;
-int height = 800;
+const int width = 800;
+const int height = 800;
 
 //some boilerplate code for outputting OGL errors
 void GLAPIENTRY MessageCallback(GLenum source,
@@ -23,13 +25,53 @@ void GLAPIENTRY MessageCallback(GLenum source,
 	const GLchar* message,
 	const void* userParam)
 {
-	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-		type, severity, message);
+	// ignore non-significant error/warning codes
+	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+	std::cout << "---------------" << std::endl;
+	std::cout << "Debug message (" << id << "): " << message << std::endl;
+
+	switch (source)
+	{
+	case GL_DEBUG_SOURCE_API:             std::cout << "Source: API"; break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cout << "Source: Window System"; break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cout << "Source: Shader Compiler"; break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
+	case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
+	case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
+	} std::cout << std::endl;
+
+	switch (type)
+	{
+	case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break;
+	case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;
+	case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "Type: Performance"; break;
+	case GL_DEBUG_TYPE_MARKER:              std::cout << "Type: Marker"; break;
+	case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
+	case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
+	case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
+	} std::cout << std::endl;
+
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_HIGH:         std::cout << "Severity: high"; break;
+	case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: medium"; break;
+	case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: low"; break;
+	case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
+	} std::cout << std::endl;
+	std::cout << std::endl;
 }
 
+std::array<std::array<GOLCell, height>, width> playfield;
 
 int main() {
+
+	
+
+	
+
 	glfwInit();
 	// Tell GLFW what version of OpenGL we are using 
 	// In this case we are using OpenGL 4
@@ -38,6 +80,7 @@ int main() {
 	// Tell GLFW we are using the CORE profile
 	// So that means we only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 	
 	//create opengl window
 	GLFWwindow* window = glfwCreateWindow(width, height, "Simulation", NULL, NULL);
@@ -58,98 +101,49 @@ int main() {
 	// In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
 	glViewport(0, 0, width, height);
 
+	//enabling debug output for OGL
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(MessageCallback, 0);
 	
-	GLuint VAO;
-	GLuint VBO;
-	GLuint EBO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-	
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	//define two squares of different colors and positions
+	Rect2D rect1 = Rect2D(glm::vec3(20.0f, 20.0f, 1.0f), glm::vec3(0.3f, 0.5f, 0.3f), glm::vec3(400.0f, 400.0f, 0.0f));
+	Rect2D rect2 = Rect2D(glm::vec3(20.0f, 20.0f, 1.0f), glm::vec3(0.5f, 0.3f, 0.3f), glm::vec3(100.0f, 100.0f, 0.0f));
 
-	Rect2D rect = Rect2D(1, glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(400.0f, 400.0f, 0.0f));
-
-	cout << "ADSDASDAS   " << sizeof(rect.getVertices()) << endl;
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(rect.getVertices()), rect.getVertices().data(), GL_STATIC_DRAW);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(rect.vertices), rect.vertices, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(rect.indices), rect.indices, GL_STATIC_DRAW);
-
-
+	//compile the shader program out of the default vertex and fragment shaders
 	Shader shader = Shader("default1.vert", "default1.frag");
 	
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	// color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	float x = 400.0f;
-	glm::vec3 position = rect.getPosition();
-	glm::vec3 scale = glm::vec3(20.0f, 20.0f, 1.0f);
-	glm::mat4 rotation = glm::mat4(1.0f);
-	glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
-	glm::mat4 scaleMat = glm::scale(glm::mat4(1.0), scale);
-	glm::mat4 model = translation * rotation * scaleMat;
-	//glm::mat4 model = glm::mat4(1.0f);
-	//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	//model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f));
-
+	// define +y as the 'up' direction
 	glm::vec3 upDir = glm::vec3(0.0f, 1.0f, 0.0f);
+	// define the camera position at z=-1
 	glm::vec3 camPos = glm::vec3(0.0f, 0.0f, -1.0f);
+	// we want to look in the direction of z = -5
 	glm::vec3 lookTarget = glm::vec3(0.0f, 0.0f, -5.0f);
 	glm::vec3 cameraDirection = glm::normalize(camPos - lookTarget);
-
-	cout << glm::to_string(cameraDirection) << endl;
-
+	
+	// define view (camera) matrix providing camera position, what direction to look in, and what way is up 
 	glm::mat4 view = glm::lookAt(camPos, cameraDirection, upDir);
 
+	//define orthogonal projection matrix
 	glm::mat4 projection;
-	//projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 	projection = glm::ortho(0.0f, 800.0f, 0.0f, 800.0f, 0.1f, 10.0f);
 
-
-	
+	//NOTE: Each Rect2D object defines its own model matrix for positioning on the playfield.
 
 	while (!glfwWindowShouldClose(window)) {
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and assign the new color to it
 		glClear(GL_COLOR_BUFFER_BIT);
-		x = fmod(x + 1.0f, 800);
-		glm::vec3 position = rect.getPosition();
-		//glm::vec3 position = glm::vec3(-400.0f, 400.0f, 0.0f);
-		glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
-		glm::mat4 model = translation * rotation * scaleMat;
-
-		glm::mat4 mvp = projection * view * model;
-		//glm::mat4 mvp = projection * model;
-
+		
+		//tell ogl we're using the shader program defined above
 		shader.use();
-		int modelLoc = glGetUniformLocation(shader.ID, "model");
-		int viewLoc = glGetUniformLocation(shader.ID, "view");
-		int projectionLoc = glGetUniformLocation(shader.ID, "projection");
-		int mvpLoc = glGetUniformLocation(shader.ID, "mvp");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-		glBindVertexArray(VAO);
+		//draw the two rectangles
+		rect1.Draw(shader, view, projection);
+		rect2.Draw(shader, view, projection);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
 		glUseProgram(0);
-		// Swap the back buffer with the front buffer
+		// Swap the back buffer with the front buffer (make what we've drawn visible)
 		glfwSwapBuffers(window);
 		// Take care of all GLFW events
 		glfwPollEvents();
@@ -158,4 +152,5 @@ int main() {
 	glfwDestroyWindow(window);
 	//Terminate GLFW
 	glfwTerminate();
+	cin.get();
 }

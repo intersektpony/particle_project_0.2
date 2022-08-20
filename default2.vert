@@ -4,6 +4,7 @@ layout (location = 1) in vec3 aColor; // the color variable has attribute positi
   
 out vec3 ourColor; // output a color to the fragment shader
 
+
 void main()
 {
     gl_Position = vec4(aPos, 1.0);
