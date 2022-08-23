@@ -1,8 +1,9 @@
 #define GLFW_INCLUDE_NONE
+
 #include<iostream>
 #include<glad/gl.h>
 #include<GLFW/glfw3.h>
-#include<stb/stb_image.h>
+#include<memory>
 #include<glm/glm/glm.hpp>
 #include<glm/glm/gtc/matrix_transform.hpp>
 #include<glm/glm/gtc/type_ptr.hpp>
@@ -10,11 +11,16 @@
 #include"Rect2D.h"
 #include<glm/glm/gtx/string_cast.hpp>
 #include"GOLCell.h"
+#include "cellularAutomataPlayfield.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include<stb/stb_image.h>
+
 
 using namespace std;
 
 const int width = 800;
 const int height = 800;
+
 
 //some boilerplate code for outputting OGL errors
 void GLAPIENTRY MessageCallback(GLenum source,
@@ -64,12 +70,21 @@ void GLAPIENTRY MessageCallback(GLenum source,
 	std::cout << std::endl;
 }
 
-std::array<std::array<GOLCell, height>, width> playfield;
+
+
+//std::array<std::array<GOLCell, height>, width> playfield;
 
 int main() {
+	std::shared_ptr<cellularAutomataPlayfield> caplayheap(new cellularAutomataPlayfield(16, 16));
+
+	(caplayheap)->setPoint(10, 9, glm::vec3(0.9f, 0.0f, 0.0f));
+	(caplayheap)->setPoint(10, 10, glm::vec3(0.9f, 0.0f, 0.0f));
+	(caplayheap)->setPoint(10, 11, glm::vec3(0.9f, 0.0f, 0.0f));
+	std::cout << (caplayheap)->getNeighbourTotal(10, 9, glm::vec3(0.9f, 0.0f, 0.0f)) << " RESULT OF TEST"<<std::endl;
+	//cellularAutomataPlayfield caplay = cellularAutomataPlayfield(800, 800);
 
 	
-
+	//caplay.printSize();
 	
 
 	glfwInit();
@@ -107,8 +122,9 @@ int main() {
 	glDebugMessageCallback(MessageCallback, 0);
 	
 	//define two squares of different colors and positions
-	Rect2D rect1 = Rect2D(glm::vec3(20.0f, 20.0f, 1.0f), glm::vec3(0.3f, 0.5f, 0.3f), glm::vec3(400.0f, 400.0f, 0.0f));
+	Rect2D rect1 = Rect2D(glm::vec3(width/2, height/2, 1.0f), "newDemoTexture.png", glm::vec3(400.0f, 400.0f, 0.0f));
 	Rect2D rect2 = Rect2D(glm::vec3(20.0f, 20.0f, 1.0f), glm::vec3(0.5f, 0.3f, 0.3f), glm::vec3(100.0f, 100.0f, 0.0f));
+	Rect2D playfieldRect = Rect2D(glm::vec3(200, 200, 1.0f), *caplayheap, glm::vec3(400.0f, 400.0f, 0.0f));
 
 	//compile the shader program out of the default vertex and fragment shaders
 	Shader shader = Shader("default1.vert", "default1.frag");
@@ -139,8 +155,8 @@ int main() {
 		//tell ogl we're using the shader program defined above
 		shader.use();
 		//draw the two rectangles
-		rect1.Draw(shader, view, projection);
-		rect2.Draw(shader, view, projection);
+		playfieldRect.Draw(shader, view, projection);
+		//texturedRect.Draw(shader, view, projection);
 
 		glUseProgram(0);
 		// Swap the back buffer with the front buffer (make what we've drawn visible)
