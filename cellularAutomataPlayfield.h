@@ -13,11 +13,15 @@ public:
 	glm::vec3 getPoint(int x, int y);
 	void setPoint(int x, int y, glm::vec3 newValue);
 	int getNeighbourTotal(int x, int y, glm::vec3 goalTest);
+	void swapPlayfieldBuffers();
 
 
 protected:
 	int width, height;
-	std::vector<glm::vec3> playfield = {};
+	std::vector<glm::vec3> playfieldA = {};
+	std::vector<glm::vec3> playfieldB = {};
+	std::vector<glm::vec3>* playfieldFrontBuffer;
+	std::vector<glm::vec3>* playfieldBackBuffer;
 	//std::vector<glm::vec3> playfield = {};
 	std::vector<unsigned int> oneDimensionalPlayfield;
 

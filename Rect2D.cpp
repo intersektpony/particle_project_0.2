@@ -20,13 +20,6 @@ Rect2D::Rect2D(glm::vec3 scale, glm::vec3 color, glm::vec3 pos) {
 
 	this->vertices.assign(vertexAndColorArray, vertexAndColorArray + _countof(vertexAndColorArray));
 	this->vertices.shrink_to_fit();
-	/*if (false) {
-		for (auto i : vertices) {
-			std::cout << i << std::endl;
-		}
-		std::cout << "----------" << std::endl << this->vertices.size() * sizeof(GLfloat) << "vacarray size = " << sizeof(vertexAndColorArray) << std::endl << std::endl;
-		std::cout << "----------" << std::endl << this->vertices.data()[23] << std::endl<< "vacarray first object = " << vertexAndColorArray[23] << std::endl << std::endl;
-	}*/
 	this->color = color;
 
 	this->indices = {  // note that we start from 0!
@@ -42,7 +35,6 @@ Rect2D::Rect2D(glm::vec3 scale, glm::vec3 color, glm::vec3 pos) {
 
 	this->textureID = 1;
 
-	std::cout << pos[0] << std::endl;
 
 	glGenVertexArrays(1, &this->RectVAO);
 	glBindVertexArray(this->RectVAO);
@@ -92,14 +84,6 @@ Rect2D::Rect2D(glm::vec3 scale, const char* texture, glm::vec3 pos) {
 	
 	this->vertices.assign(vertexAndColorArray, vertexAndColorArray + _countof(vertexAndColorArray));
 	this->vertices.shrink_to_fit();
-
-	if (true) {
-		for (auto i : vertices) {
-			std::cout << i << std::endl;
-		}
-		std::cout << "----------" << std::endl << this->vertices.size() * sizeof(GLfloat) << "vacarray size = " << sizeof(vertexAndColorArray) << std::endl << std::endl;
-		std::cout << "----------" << std::endl << this->vertices.data()[0] << std::endl << "vacarray first object = " << vertexAndColorArray[0] << std::endl << std::endl;
-	}
 	this->color = color;
 
 
@@ -113,7 +97,6 @@ Rect2D::Rect2D(glm::vec3 scale, const char* texture, glm::vec3 pos) {
 	this->scale = scale;
 
 	this->firstDrawCall = true;
-	std::cout << pos[0] << std::endl;
 
 	glGenVertexArrays(1, &this->RectVAO);
 	glBindVertexArray(this->RectVAO);
@@ -153,7 +136,6 @@ Rect2D::Rect2D(glm::vec3 scale, const char* texture, glm::vec3 pos) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tWidth, tHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, this->textureData);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		std::cout << "Texture Loaded" << std::endl;
-		std::cout << (unsigned int) this->textureData[0] << std::endl;
 	}
 	else
 	{
@@ -200,13 +182,6 @@ Rect2D::Rect2D(glm::vec3 scale, cellularAutomataPlayfield image, glm::vec3 pos) 
 	this->vertices.assign(vertexAndColorArray, vertexAndColorArray + _countof(vertexAndColorArray));
 	this->vertices.shrink_to_fit();
 
-	if (true) {
-		for (auto i : vertices) {
-			std::cout << i << std::endl;
-		}
-		std::cout << "----------" << std::endl << this->vertices.size() * sizeof(GLfloat) << "vacarray size = " << sizeof(vertexAndColorArray) << std::endl << std::endl;
-		std::cout << "----------" << std::endl << this->vertices.data()[0] << std::endl << "vacarray first object = " << vertexAndColorArray[0] << std::endl << std::endl;
-	}
 	this->color = color;
 
 
@@ -220,7 +195,6 @@ Rect2D::Rect2D(glm::vec3 scale, cellularAutomataPlayfield image, glm::vec3 pos) 
 	this->scale = scale;
 
 	this->firstDrawCall = true;
-	std::cout << pos[0] << std::endl;
 
 	glGenVertexArrays(1, &this->RectVAO);
 	glBindVertexArray(this->RectVAO);
