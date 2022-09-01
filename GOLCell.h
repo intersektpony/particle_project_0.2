@@ -2,6 +2,9 @@
 #define GAME_OF_LIFE_CELL
 #include<array>
 #include "Rect2D.h"
+/*
+* Old, disused class, ignore
+*/
 
 
 class GOLCell {

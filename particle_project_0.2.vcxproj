@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cellularAutomataPlayfield.cpp" />
     <ClCompile Include="gl.c" />
     <ClCompile Include="GOLCell.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -145,9 +146,15 @@
     <None Include="default2.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cellularAutomataPlayfield.h" />
     <ClInclude Include="GOLCell.h" />
+    <ClInclude Include="Libraries\include\stb\stb_image.h" />
     <ClInclude Include="Rect2D.h" />
     <ClInclude Include="shaderClass.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Background_brick_wall.jpg" />
+    <Image Include="demoTexture.PNG" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
