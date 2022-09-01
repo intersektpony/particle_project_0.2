@@ -1,6 +1,7 @@
 #define GLFW_INCLUDE_NONE
 
 #include<iostream>
+#include<stdexcept>
 #include<glad/gl.h>
 #include<GLFW/glfw3.h>
 #include<memory>
@@ -12,6 +13,7 @@
 #include<glm/glm/gtx/string_cast.hpp>
 #include"GOLCell.h"
 #include "cellularAutomataPlayfield.h"
+//please do not put new includes below this line or stb will mess up
 #define STB_IMAGE_IMPLEMENTATION
 #include<stb/stb_image.h>
 
@@ -70,23 +72,20 @@ void GLAPIENTRY MessageCallback(GLenum source,
 	std::cout << std::endl;
 }
 
+glm::vec3 dead = glm::vec3(0.1f, 0.1f, 0.1f);
+glm::vec3 alive = glm::vec3(0.1f, 0.5f, 0.1f);
+cellularAutomataPlayfield caplayheap = cellularAutomataPlayfield(200, 200, alive, dead, true);
+bool simulationOn = false;
+
+
+
 
 
 //std::array<std::array<GOLCell, height>, width> playfield;
 
 int main() {
-	std::shared_ptr<cellularAutomataPlayfield> caplayheap(new cellularAutomataPlayfield(16, 16));
-
-	(caplayheap)->setPoint(10, 9, glm::vec3(0.9f, 0.0f, 0.0f));
-	(caplayheap)->setPoint(10, 10, glm::vec3(0.9f, 0.0f, 0.0f));
-	(caplayheap)->setPoint(10, 11, glm::vec3(0.9f, 0.0f, 0.0f));
-	std::cout << (caplayheap)->getNeighbourTotal(10, 9, glm::vec3(0.9f, 0.0f, 0.0f)) << " RESULT OF TEST"<<std::endl;
-	//cellularAutomataPlayfield caplay = cellularAutomataPlayfield(800, 800);
-
+	//std::shared_ptr<cellularAutomataPlayfield> caplayheap(new cellularAutomataPlayfield(16, 16));
 	
-	//caplay.printSize();
-	
-
 	glfwInit();
 	// Tell GLFW what version of OpenGL we are using 
 	// In this case we are using OpenGL 4
@@ -120,11 +119,35 @@ int main() {
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(MessageCallback, 0);
+
+	caplayheap.setPoint(2, 2, alive);
+	caplayheap.setPoint(2, 3, alive);
+	caplayheap.setPoint(3, 2, alive);
+	caplayheap.setPoint(3, 3, alive);
+
+
+	caplayheap.setPoint(7, 7, alive);
+	caplayheap.setPoint(8, 6, alive);
+	caplayheap.setPoint(8, 8, alive);
+	caplayheap.setPoint(9, 7, alive);
+	caplayheap.setPoint(10, 7, alive);
+
+
+	caplayheap.swapPlayfieldBuffers();
+	glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void {
+		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+			simulationOn = !simulationOn;
+		}
+
+		if (key == GLFW_KEY_P && action == GLFW_PRESS && !simulationOn) {
+			caplayheap.updateSimulation(alive, dead);
+		}
+		});
 	
 	//define two squares of different colors and positions
 	Rect2D rect1 = Rect2D(glm::vec3(width/2, height/2, 1.0f), "newDemoTexture.png", glm::vec3(400.0f, 400.0f, 0.0f));
 	Rect2D rect2 = Rect2D(glm::vec3(20.0f, 20.0f, 1.0f), glm::vec3(0.5f, 0.3f, 0.3f), glm::vec3(100.0f, 100.0f, 0.0f));
-	Rect2D playfieldRect = Rect2D(glm::vec3(200, 200, 1.0f), *caplayheap, glm::vec3(400.0f, 400.0f, 0.0f));
+	Rect2D playfieldRect = Rect2D(glm::vec3(width / 2, height / 2, 1.0f), caplayheap, glm::vec3(400.0f, 400.0f, 0.0f));
 
 	//compile the shader program out of the default vertex and fragment shaders
 	Shader shader = Shader("default1.vert", "default1.frag");
@@ -145,8 +168,18 @@ int main() {
 	projection = glm::ortho(0.0f, 800.0f, 0.0f, 800.0f, 0.1f, 10.0f);
 
 	//NOTE: Each Rect2D object defines its own model matrix for positioning on the playfield.
-
+	int t = 0;
 	while (!glfwWindowShouldClose(window)) {
+		glFinish();
+		t++;
+		if (t % 20 == 0 && simulationOn) {
+			caplayheap.updateSimulation(alive, dead);
+		}
+
+		if (caplayheap.hasUpdated()) {
+			playfieldRect.updateTexture((caplayheap));
+			caplayheap.setUpdated(false);
+		}
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and assign the new color to it
@@ -158,11 +191,22 @@ int main() {
 		playfieldRect.Draw(shader, view, projection);
 		//texturedRect.Draw(shader, view, projection);
 
-		glUseProgram(0);
+		/*glUseProgram(0);
+		for (int updateY = 0; updateY < (caplayheap)->getWidth(); updateY++) {
+			for (int updateX = 0; updateX < (caplayheap)->getHeight(); updateX++) {
+				int v = (caplayheap)->getNeighbourTotal(updateX, updateY, glm::vec3(0.9f, 0.0f, 0.0f));
+				if (updateX == 10 && updateY == 10) std::cout << v << std::endl;
+			}
+		}
+		
+		(caplayheap)->swapPlayfieldBuffers();*/
 		// Swap the back buffer with the front buffer (make what we've drawn visible)
 		glfwSwapBuffers(window);
 		// Take care of all GLFW events
 		glfwPollEvents();
+		
+		//playfieldRect.updateTexture((caplayheap));
+
 	}
 	// Delete Window
 	glfwDestroyWindow(window);

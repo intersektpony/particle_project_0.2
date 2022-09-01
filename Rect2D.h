@@ -30,6 +30,7 @@ public:
 	std::vector<GLfloat> getVertices();
 	glm::vec3 getPosition();
 	void setPosition(glm::vec3 newPosition);
+	void updateTexture(cellularAutomataPlayfield image);
 
 	void Draw(Shader shader, glm::mat4 view, glm::mat4 proj);
 protected:

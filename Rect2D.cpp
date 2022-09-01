@@ -157,13 +157,11 @@ Rect2D::Rect2D(glm::vec3 scale, cellularAutomataPlayfield image, glm::vec3 pos) 
 
 	this->isTextured = true;
 
-	//using texture image, generate texture
 	int tWidth, tHeight, nrChannels;
 	tWidth = image.getWidth();
 	tHeight = image.getHeight();
 	nrChannels = 3;
 
-	stbi_set_flip_vertically_on_load(true);
 	std::vector<glm::vec3> pfc = image.getPlayfieldColors();
 	this->textureDataVec3 = pfc.data();
 
@@ -299,7 +297,7 @@ void Rect2D::Draw(Shader shader, glm::mat4 view, glm::mat4 proj) {
 	{
 		
 		glUniform1i(glGetUniformLocation(shader.ID, "textureExists"), true);
-		glBindTexture(GL_TEXTURE_2D, this->textureID);
+		//glBindTexture(GL_TEXTURE_2D, this->textureID);
 		glBindVertexArray(this->RectVAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glUniform1i(glGetUniformLocation(shader.ID, "textureExists"), false);
@@ -318,4 +316,12 @@ void Rect2D::Draw(Shader shader, glm::mat4 view, glm::mat4 proj) {
 	
 
 	glBindVertexArray(0);
+}
+
+void Rect2D::updateTexture(cellularAutomataPlayfield image) {
+	std::vector<glm::vec3> pfc = image.getPlayfieldColors();
+	this->textureDataVec3 = pfc.data();
+	glBindTexture(GL_TEXTURE_2D, this->textureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.getWidth(), image.getHeight(), 0, GL_RGB, GL_FLOAT, this->textureDataVec3);
+
 }
